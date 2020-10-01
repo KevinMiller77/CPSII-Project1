@@ -35,4 +35,5 @@ project "Main"
         }
 
         targetdir("./")
+        debugdir("./")
 
