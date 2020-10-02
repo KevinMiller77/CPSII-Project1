@@ -1,5 +1,6 @@
 #include "utils.h"
 
+//reads from file
 std::vector<Person> readDatabaseIntoVec(std::string filepath)
 {
     std::vector<Person> result = std::vector<Person>();
@@ -10,21 +11,22 @@ std::vector<Person> readDatabaseIntoVec(std::string filepath)
 
     if (!dbFile)
     {
-        printf("Could not open database file for READING!!\n");
+        printf("Could not open database file for READING!!\n");        // in case file cannot be reached
         return result;
     }
 
-    //Grab the drivers and passengers from the file
+    // Grab the drivers and passengers from the file
     for (std::string line; std::getline(dbFile, line); )
     {
         int intermediate_sp = line.find(" ");
         int space = line.find(" ", intermediate_sp + 1);
         
-        //Person is a driver
+        // Person is a driver
         if (space == -1)
         {
             result.push_back(Person(line, -1));
         }
+        // Person is not a driver
         else
         {
             std::string name = line.substr(0, space);
@@ -36,7 +38,7 @@ std::vector<Person> readDatabaseIntoVec(std::string filepath)
     return result;   
 }
 
-
+//writes to file
 void saveToDatabase(std::string filepath, std::vector<Person>& people)
 {
     std::ofstream dbFile;
@@ -45,7 +47,7 @@ void saveToDatabase(std::string filepath, std::vector<Person>& people)
 
     if (!dbFile)
     {
-        printf("Could not open database file for WRITING!!\n");
+        printf("Could not open database file for WRITING!!\n");         //in case file cannot be reached
         return;
     }
 

@@ -1,14 +1,17 @@
 #include "fleet.h"
 
-Fleet::Fleet()
+Fleet::Fleet()                                               
 {
-    m_Fleet.push_back(new Pickup(CarColor::PURPLE));
+    m_Fleet.push_back(new Pickup(CarColor::PURPLE));        
     m_Fleet.push_back(new Compact(CarColor::RED));
     m_Fleet.push_back(new Compact(CarColor::BLUE));
     m_Fleet.push_back(new Compact(CarColor::YELLOW));
     m_Fleet.push_back(new Sedan(CarColor::BLUE));
     m_Fleet.push_back(new Sedan(CarColor::GREEN));
 }
+
+// All fleet functions return a vector full of pointers, no copies
+
 
 std::vector<Seat*> Fleet::getSeats()
 {
@@ -50,7 +53,7 @@ std::vector<Seat*> Fleet::getDriverSeats()
     return seats;
 }
 
-void Fleet::printFullManifest()
+void Fleet::printFullReservationInfo()
 {
     for (Car* car : m_Fleet)
     {

@@ -34,6 +34,7 @@ struct Seat
     bool taken = false;
 };
 
+//overall class to determine color and type of car
 class Car
 {
 public:
@@ -54,6 +55,7 @@ protected:
     std::vector<Seat*> m_Seats;
 };
 
+//chooses which car
 class Sedan : public Car
 {
 public:

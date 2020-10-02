@@ -5,7 +5,7 @@ class Fleet
 {
 public:
     Fleet();
-    void printFullManifest();
+    void printFullReservationInfo();
 
     std::vector<Seat*> getSeats();
     std::vector<Seat*> getDriverSeats();
