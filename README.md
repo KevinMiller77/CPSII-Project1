@@ -10,7 +10,7 @@
     3) Open the .sln file created for you in the root dir 
     4) Run as normal
 
-*Unix*
+*Unix (and WSL)*
 
     Prerequisits
     You must have gmake (make) installed in order to compile the project (You probably already do)
