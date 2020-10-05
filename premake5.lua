@@ -1,5 +1,5 @@
 workspace "Project_1"
-    startproject "Main"
+    startproject "Carpool"
     configurations 
     { 
         "Debug",
@@ -13,14 +13,13 @@ workspace "Project_1"
 
     outputdir = "%{cfg.buildcfg}/%{cfg.system}%{cfg.architecture}"
 
-project "Main"
-        location "project_data"
+project "Carpool"
         kind "ConsoleApp"
         language "C++"
         cppdialect "C++17"
         staticruntime "on"
 
-        targetname("Project 1")
+        targetname("Carpool")
 	    objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
         files
