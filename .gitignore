@@ -15,7 +15,7 @@
 *.DS_Store
 Carpool
 CarpoolMain
-temp.dat
+*/temp.dat
 
 
 *.xcodeproj/
