@@ -2,6 +2,7 @@
 
 **How to use**
 *Windows*
+
     1) Open a new Powershell instance and navigate the the root dir of the project.
         You can also 'Shift+Right Click' in the folder in Explorer to see the option to open Powershell here
     2) Run 'scripts\premake5 vs2019' to build the .sln file. You may use vs2017 or vs2015 as well according to your installed version.
