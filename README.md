@@ -1,6 +1,7 @@
 # CPSII-Project 1
 
 **How to use**
+
 *Windows*
 
     1) Open a new Powershell instance and navigate the the root dir of the project.
@@ -10,7 +11,8 @@
     4) Run as normal
 
 *Unix*
-    **Prerequisits**
+
+    Prerequisits
     You must have gmake (make) installed in order to compile the project (You probably already do)
     To install, run 'sudo apt-get install make' on Ubuntu and most Debian systems
 
