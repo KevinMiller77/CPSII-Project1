@@ -1,5 +1,63 @@
 #include "ui.h"
 
+
+//Using a namespace to avoid global things
+namespace Keys
+{
+    //Types of keywords we will encounter
+    enum class KeyType
+    {
+        INVALID = 0, CAR = 1, COLOR = 2, SEAT = 3
+    };
+
+    const std::unordered_map<std::string, CarType> Car = {  {"sedan",   CarType::SEDAN},\
+                                                            {"pickup",  CarType::PICKUP},\
+                                                            {"compact", CarType::COMPACT}};
+
+
+    const std::unordered_map<std::string, SeatType> Seat = { {"front",   SeatType::FRONT},\
+                                                            {"back",    SeatType::BACK},\
+                                                            {"middle",  SeatType::MIDDLE},\
+                                                            {"side",    SeatType::SIDE}};
+ 
+
+    const std::unordered_map<std::string, CarColor> Color { {"purple",  CarColor::PURPLE}, \
+                                                            {"red",     CarColor::RED},\
+                                                            {"blue",    CarColor::BLUE},\
+                                                            {"yellow",  CarColor::YELLOW},\
+                                                            {"green",   CarColor::GREEN}};  
+
+    template <typename T>
+    bool existsInMap(const std::unordered_map<std::string, T>& map, std::string& key)
+    {
+        return map.find(key) != map.end();
+    }
+
+
+    KeyType isValidKeyword(std::string& word)
+    {
+        if (existsInMap<CarType>(Car, word))
+        {
+            return KeyType::CAR;
+        }
+        else if (existsInMap<CarColor>(Color, word))
+        {
+            return KeyType::COLOR;
+        }
+        else if (existsInMap<SeatType>(Seat, word))
+        {
+            return KeyType::SEAT;
+        }
+        else
+        {
+            return KeyType::INVALID;
+        }
+    }
+};
+
+
+
+
 UI::UI()
 {
     //Setup the fleet (Most is done in constructors)
@@ -53,7 +111,7 @@ bool UI::mainLoop()
     printf("(D)     Delete a reservation\n");
     printf("(L)     Display vehicles\n");
     printf("(P)     Print vehicle assignments to a file named after the car\n");
-    printf("(A)     Print All reservations\n\n");
+    printf("(A)     Print All reservations\n");
     printf("(E)     Exit NOTE: If you do not exit through this method, the database will not update!!\n\n > ");
 
     char command;
@@ -66,7 +124,7 @@ bool UI::mainLoop()
         {
             if (!Create())
             {
-                printf("\n\nCould not create!\nPress enter to start over...\n");
+                printf("\n\nPress enter to start over...\n");
                 WAIT_FOR_ENTER();
                 return false;
             }
@@ -85,7 +143,7 @@ bool UI::mainLoop()
             }
             if (!Create())
             {
-                printf("\n\nInvalid option!! All options were occupied or your input was invalid\nPress enter to start over...\n");
+                printf("\n\nPress enter to start over...\n");
                 WAIT_FOR_ENTER();
                 return false;
             }
@@ -102,6 +160,8 @@ bool UI::mainLoop()
                 WAIT_FOR_ENTER();
                 return false;
             }
+            printf("Reservation %d successfully removed!\n", idx);
+            WAIT_FOR_ENTER();
             break;
         }
         case('l'):
@@ -122,11 +182,11 @@ bool UI::mainLoop()
 
             try
             {
-                CarColor col = s_Keys.Color.at(words[0]);
+                CarColor col = Keys::Color.at(words[0]);
                 try
                 {
 
-                    CarType type = s_Keys.Car.at(words[1]);
+                    CarType type = Keys::Car.at(words[1]);
 
                     for (Car* car : m_Fleet.getCars(type))
                     {
@@ -197,6 +257,7 @@ bool UI::mainLoop()
     return false;
 }
 
+//This function takes in a line, splits it, and spits out a heap allocated vector
 std::vector<std::string>* UI::WordsFromInput()
 {
     std::string input;  //""
@@ -219,6 +280,7 @@ std::vector<std::string>* UI::WordsFromInput()
     return words;
 }
 
+//Function to create a reservation
 bool UI::Create()
 {
     CLEAR_SCR();
@@ -257,8 +319,10 @@ bool UI::Create()
     {
         if (seat->personInSeat == person)
         {
+            CLEAR_SCR();
+            printf("Hello, %s!\n", person->GetName().c_str());
             printf("You already have a reservation! Here is your info again\n");
-            printf("Reservation info : \n - Name: % s\n - ReservationID: % d\n - Car: % s\n\n", person->GetName().c_str(), idx + 1, CarToString(*seat->parent).c_str());
+            printf("Reservation info : \n - ReservationID: % d\n - Car: % s\n\n", idx + 1, CarToString(*seat->parent).c_str());
             printf("Write down your ReservationID and press enter to continue");
             WAIT_FOR_ENTER();
             return true;
@@ -269,16 +333,25 @@ bool UI::Create()
     }
 
     CLEAR_SCR();
+
+    if (person->GetCredits() <= 0)
+    {
+        printf("Sorry, %s, You have run out of credits this week.\n", person->GetName().c_str());
+        printf("We look forward to having you next week!");
+        return false;
+    }
+
+    printf("\nHello, %s! You have %d credits.\n\n", person->GetName().c_str(), person->GetCredits());
     m_Fleet.printReservationVisual();
 
-    printf("\n\nPlease select a vehicle type, color, or type of seat;\n\n");
+    printf("\n\nPlease select a vehicle type, color, or type of seat;\n");
     printf("Car types: Sedan, Truck, Compact\n");
     printf("Seat types: front, back, side, middle. Only sedans have a middle seat. \n");
     printf("Back can be chosen on sedans as well as compacts but in sedans you might get a side or middle, whichever is best.\n");
-    printf("If you only select a seat type, you will be given the best available seat. \n");
     printf("   ie. entering \"Back\" will try for a compact back seat and resort to a sedan middle and then sedan side\n\n");
-    printf("Enter no commas and seperate all words with spaces!!\nFormat should be one of the following\n");
-    printf("   <Car Type>\n   <Seat>\n   <Car Type> <Seat>\n   <Color> <Car Type> <Seat>\n\n > ");
+    printf("!!Enter no commas and seperate all words with spaces!!\nFormat should be one of the following\n");
+    printf("   <Car Type>\n   <Seat>\n   <Car Type> <Seat>\n   <Color> <Car Type> <Seat>\n > ");
+
 
 
     
@@ -289,166 +362,105 @@ bool UI::Create()
     {
         return false;
     }
-
-    CarType carType = CarType::NONE;
-    CarColor carColor = CarColor::NONE;
-    
-    //Used driver seat because driver will never be used in this context and resolves to 0 
-    SeatType seatType = SeatType::DRIVER; 
     
     //Now for the fun part, parsing
     //The try catches are because we want to throw an exception,
     //  if an unordered map has no member you're asking for, it throws
 
     Seat* seatToReserve = nullptr;
-    
-    //bool to check if the situation has already been handled to exit the loop
-    bool handled = false;
 
-    for (int i = 0; i < 3; i++)
+    Keys::KeyType kw1 = Keys::KeyType::INVALID;
+    Keys::KeyType kw2 = Keys::KeyType::INVALID;
+    Keys::KeyType kw3 = Keys::KeyType::INVALID;
+
+    kw1 = Keys::isValidKeyword(words[0]);
+    if (words.size() > 1) kw2 = Keys::isValidKeyword(words[1]);
+    if (words.size() > 2) kw3 = Keys::isValidKeyword(words[2]);
+
+    //Valid first keywords are all 3 types, check it exists at all
+    if (!(bool)kw1)
     {
-        if (handled) break;
-        switch(i)
-        {
-            //Car Type, break out into carGiven() or find best seat in car type
-            case(0):
-            {
-                try
-                {
-                    carType = s_Keys.Car.at(words[0]);
-                    try
-                    {
-                        seatType = s_Keys.Pos.at(words[1]);
-                        seatToReserve = getBestSeat(person->GetCredits(), seatType, carType); 
-                        if (seatToReserve == nullptr)
-                        {
-                            return false;
-                        }
-                        handled = true;
-                    }
-                    catch(const std::exception& e)
-                    {
-                        //Only car type was given, show them the options
-                        CLEAR_SCR();
-                        m_Fleet.printReservationVisual(carType);
-                        printf("\n\nPlease select a type of seat;\n\n");
-                        printf("Seat type: front, back, side, middle. Only sedans have a middle seat. \n");
-                        printf("Enter no commas and seperate all words with spaces!!\nFormat should be the following\n");
-                        printf("   <Seat>\n\n > ");
-
-                        std::vector<std::string> seatSelWords = *WordsFromInput();
-                        if (seatSelWords.size() > 1)
-                        {
-                            return false;
-                        }
-
-                        try
-                        {
-                            seatType = s_Keys.Pos.at(seatSelWords[0]);
-                            seatToReserve = getBestSeat(person->GetCredits(), seatType, carType); 
-                            if (seatToReserve == nullptr)
-                            {
-                                return false;
-                            }
-                            handled = true;
-                        }
-                        catch(const std::exception& e)
-                        {
-                            return false;
-                        }
-                    }
-                    
-
-                }
-                catch(const std::exception& e)
-                {
-                    //Not a car type keyword, do nothing
-                }
-                break;
-            }
-            //Seat type given first
-            case(1):
-            {
-                try
-                {
-                    seatType = s_Keys.Pos.at(words[0]);
-                    seatToReserve = getBestSeat(person->GetCredits(), seatType); 
-                    if (seatToReserve == nullptr)
-                    {
-                        return false;
-                    }
-                    handled = true;
-                }
-                catch(const std::exception& e)
-                {
-                    //Not a seat type keyword, do nothing
-                }
-                break;
-            }
-
-            //Color first, meaning it has to be the full arg
-            case(2):
-            {
-                try
-                {
-                    carColor = s_Keys.Color.at(words[0]);
-                    try
-                    {
-                        carType = s_Keys.Car.at(words[1]);
-                        seatType = s_Keys.Pos.at(words[2]);
-
-                        for (Car* car : m_Fleet.getCars(carType))
-                        {
-                            if (car->getColor() == carColor)
-                            {
-                                bool canAfford = false;
-                                //I hate nested for loops but this was simplist
-                                for (Seat* seat : car->getSeats())
-                                {
-                                    if (seat->taken)
-                                    {
-                                        continue;
-                                    }
-                                    bool match = seat->type == seatType || ((carType == CarType::SEDAN && seatType == SeatType::BACK) && (seat->type == SeatType::MIDDLE || seat->type == SeatType::BACK));
-                                    if (match && seat->cost <= person->GetCredits())
-                                    {
-                                        canAfford = true;
-                                        seatToReserve = seat;
-                                        handled = true;
-                                        break;
-                                    }
-                                }
-
-                                if (!canAfford) 
-                                {
-                                    printf("You cannot afford this seat!\n");
-                                    return false;
-                                }
-                                    
-                            }
-                        }
-                    }
-                    catch(const std::exception& e)
-                    {
-                        return false;
-                    }
-                }
-                catch(const std::exception& e)
-                {
-                    //None of the keywords were valid
-                    return false;
-                }
-                break;
-            }
-
-            default:
-            {
-                break;
-            }
-        }
+        printf("Your first argument was invalid. Try again.\n");
+        return false;
     }
     
-    
+    //Check what the first keyword is, this decides all following flow
+    switch (kw1)
+    {
+        //Only one case here, it must be find the best seat I want
+        case(Keys::KeyType::SEAT):
+        {
+            seatToReserve = getBestSeat(person->GetCredits(), Keys::Seat.at(words[0]));
+            break;
+        }
+        //Two cases here, could be type alone or type with seat preference
+        case(Keys::KeyType::CAR):
+        {
+            if (words.size() == 2 && kw2 == Keys::KeyType::SEAT)
+            {
+                seatToReserve = getBestSeat(person->GetCredits(), Keys::Seat.at(words[1]), Keys::Car.at(words[0]));
+                break;
+            }
+            if(Keys::Car.at(words[0]) == CarType::PICKUP)
+            {
+                seatToReserve = getBestSeat(person->GetCredits(), SeatType::FRONT, CarType::PICKUP);
+                break;
+            }
+
+            CLEAR_SCR();
+            m_Fleet.printReservationVisual(Keys::Car.at(words[0]));
+            printf("\n\nPlease select a type of seat;\n\n");
+            printf("Seat type: front, back, side, middle. Only sedans have a middle seat. \n");
+            printf("Enter no commas and seperate all words with spaces!!\nFormat should be the following\n");
+            printf("   <Seat>\n\n > ");
+
+            std::vector<std::string> seatSelWords = *WordsFromInput();
+            if (seatSelWords.size() > 1)
+            {
+                printf("Incorrect amount of arguments. Please try again.\n");
+                return false;
+            }
+
+            if (Keys::isValidKeyword(seatSelWords[0]) != Keys::KeyType::SEAT)
+            {
+                printf("Your second argument was not a valid seat type!\n");
+                return false;
+            }
+
+            seatToReserve = getBestSeat(person->GetCredits(), Keys::Seat.at(seatSelWords[0]), Keys::Car.at(words[0]));
+            break;
+        }
+
+        //Now for the long one
+        case(Keys::KeyType::COLOR):
+        {
+            bool validSize = words.size() == 3;
+            bool validArgTypes = kw2 == Keys::KeyType::CAR && kw3 == Keys::KeyType::SEAT;
+
+            if ((uint8_t)Keys::Seat.at(words[2]) > person->GetCredits())
+            {
+                printf("Not enough credits for this type of seat!\n");
+                return false;
+            }
+
+            if (!validSize || !validArgTypes)
+            {
+                printf("Your second or third argument was invalid. Try again.\n");
+                return false;
+            }
+
+            seatToReserve = getBestSeat(person->GetCredits(), Keys::Seat.at(words[2]), Keys::Car.at(words[1]), Keys::Color.at(words[0]));
+            break;
+        }
+        default:
+            break;
+    }
+
+    //All specific errors are handled in the getBestSeat
+    if (seatToReserve == nullptr)
+    {
+        return false;
+    }
 
     seatToReserve->personInSeat = person;
     seatToReserve->taken = true;
@@ -471,6 +483,85 @@ bool UI::Create()
     return true;
 }
 
+Seat* UI::getBestSeat(uint32_t credits, SeatType seatIN, CarType carIN, CarColor colorIN)
+{
+    std::vector<Car*> possibleCars = m_Fleet.getCars(carIN);
+            
+    Car* carRequested = nullptr;
+    for (Car* car : possibleCars)
+    {
+        if (car->getColor() == colorIN)
+        {
+            carRequested = car;
+        }
+    }
+
+    if (carRequested == nullptr)
+    {
+        printf("There is no car of this type in this color. Try again.\n");
+        return nullptr;
+    }
+
+    std::vector<Seat*> possibleSeats = carRequested->getSeats();
+
+    if (seatIN == SeatType::BACK && carIN == CarType::SEDAN)
+    {
+        Seat* bestFound = nullptr; SeatType bestsType = SeatType::DRIVER;
+        std::reverse(possibleSeats.begin(), possibleSeats.end());    
+        int unaffordable = true;
+        for (Seat* seat : possibleSeats)
+        {
+            if (seat->taken) 
+            {
+                continue;
+            }
+            if (seat->cost < credits)
+            {
+                continue;
+            }
+
+            if ((uint8_t)seat->type >= (uint8_t)bestsType)
+            {
+                //Change best found open seat if better is found
+                unaffordable = false;
+                bestFound = seat;
+                bestsType = seat->type;
+            }
+        }
+
+        if (unaffordable)
+        {
+            printf("You cannot afford this seat!\n");
+            return nullptr;
+        }
+
+        return bestFound;
+    }
+
+    if (credits < (uint8_t)seatIN)
+    {
+
+    }
+
+    for (Seat* seat : possibleSeats)
+    {
+        if (seat->taken || seat->type != seatIN)
+        {
+            continue;
+        }
+
+        if (seat->type == seatIN)
+        {
+            return seat;
+        }
+    }
+
+    //Complete fail returns nullptr
+    printf("All seats of the type you requested are taken. Please choose another.");
+    return nullptr;
+}
+
+
 Seat* UI::getBestSeat(uint32_t credits, SeatType seatIN, CarType carIN)
 {
     std::vector<Seat*> lookingSeats = m_Fleet.getSeats(carIN);
@@ -486,7 +577,7 @@ Seat* UI::getBestSeat(uint32_t credits, SeatType seatIN, CarType carIN)
 
         //Reverse because sedan is always worst choice here and last no matter what
         std::reverse(lookingSeats.begin(), lookingSeats.end());    
-        bool unaffordable = false;
+        int unaffordable = true;
         for (Seat* seat : lookingSeats)
         {
             if (seat->taken) 
@@ -495,13 +586,13 @@ Seat* UI::getBestSeat(uint32_t credits, SeatType seatIN, CarType carIN)
             }
             if (seat->cost > credits)
             {
-                unaffordable = true;
                 continue;
             }
 
             if ((uint32_t)seat->type >= (uint32_t)bestsType && (uint32_t)seat->type <= (uint32_t)seatIN)
             {
                 //Change best found open seat if better is found
+                unaffordable = false;
                 bestFound = seat;
                 bestsType = seat->type;
             }
@@ -510,34 +601,45 @@ Seat* UI::getBestSeat(uint32_t credits, SeatType seatIN, CarType carIN)
         if (unaffordable)
         {
             printf("You cannot afford this seat!\n");
+            return nullptr;
         }
 
         return bestFound;
     }
+    
+    if (credits < (uint8_t)seatIN)
+    {
+        printf("You do not have enough credits for this seat!\n");
+        return nullptr;
+    }
 
     for (Seat* seat : lookingSeats)
     {
-        if (seat->taken || seat->cost > credits) 
+        if (seat->type != seatIN || seat->taken)
         {
             continue;
         }
-
-        if (seat->type == seatIN)
-        {
-            //Return seat if it wasn't taken and matched
-            return seat;
-        }
+        
+        return seat;
     }
 
     //Complete fail returns nullptr
+    printf("All seats of the type you requested are taken. Please choose another.");
     return nullptr;
 }
 
 int UI::GetPersonFromName(std::string& name)
-{
+{   
+    //to lower input
+    std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c){ return std::tolower(c); });
+
+
     for (int i = 0; i < m_People.size(); i++)
     {
-        if (m_People[i]->GetName() == name)
+        std::string nameV = m_People[i]->GetName();
+        std::transform(nameV.begin(), nameV.end(), nameV.begin(), [](unsigned char c){ return std::tolower(c); });
+
+        if (nameV == name)
         {
             return i;
         }
@@ -550,14 +652,15 @@ int UI::GetPersonFromName(std::string& name)
 bool UI::Destroy(uint32_t reservationNumber)
 {
     //Reservation number shoudl never enter this function if it is out of bounds!!!
-    Seat seat = *m_PassengerSeats[reservationNumber - 1]; 
-    if (!seat.taken)
+    Seat* seat = m_PassengerSeats[reservationNumber - 1]; 
+    if (!seat->taken)
     {
+        printf("Reservation %d does not exist!\n", reservationNumber);
         return false;
     }
 
-    seat.taken = false;
-    seat.personInSeat = new Person();
+    seat->taken = false;
+    seat->personInSeat = new Person();
     
     return true;
 }

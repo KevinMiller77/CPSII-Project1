@@ -1,5 +1,4 @@
 #include "car.h"
-#include "utils.h"
 
 void Car::printSeatManifest()
 {

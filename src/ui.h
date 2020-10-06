@@ -16,31 +16,6 @@
 
 #define TERMINAL_PASSWORD 1234
 
-struct Keys
-{
-    enum class Type
-    {
-        Car, Color, Pos
-    };
-
-    const std::unordered_map<std::string, CarType> Car = {  {"sedan",   CarType::SEDAN},\
-                                                            {"pickup",  CarType::PICKUP},\
-                                                            {"compact", CarType::COMPACT}};
-
-
-    const std::unordered_map<std::string, SeatType> Pos = { {"front",   SeatType::FRONT},\
-                                                            {"back",    SeatType::BACK},\
-                                                            {"middle",  SeatType::MIDDLE},\
-                                                            {"side",    SeatType::SIDE}};
- 
-
-    const std::unordered_map<std::string, CarColor> Color { {"purple",  CarColor::PURPLE}, \
-                                                            {"red",     CarColor::RED},\
-                                                            {"blue",    CarColor::BLUE},\
-                                                            {"yellow",  CarColor::YELLOW},\
-                                                            {"green",   CarColor::GREEN}};  
-
-};
 
 class UI
 {
@@ -56,6 +31,8 @@ private:
     //Returns true if reservation is made 
     bool Create();
     Seat* getBestSeat(uint32_t credits, SeatType seatIN, CarType carIN = CarType::ALL);
+    Seat* getBestSeat(uint32_t credits, SeatType seatIN, CarType carIN, CarColor colorIN);
+
     int GetPersonFromName(std::string& name);
     std::vector<std::string>* WordsFromInput();
 
@@ -68,7 +45,6 @@ private:
 
 private:
     Fleet m_Fleet;
-    Keys s_Keys;
 
     std::vector<Person*> m_People;
     std::vector<Seat*> m_AllSeats;

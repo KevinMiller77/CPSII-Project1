@@ -14,9 +14,7 @@ public:
     std::vector<Seat*> getPassengerSeats();
 
     std::vector<Car*> getCars(CarType type);
-    std::vector<Seat*> Fleet::getSeats(CarType type);
-
-
+    std::vector<Seat*> getSeats(CarType type);
 
 private:
     std::vector<Car*> m_Fleet;
