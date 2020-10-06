@@ -20,6 +20,8 @@ public:
     int GetCredits() { return m_Credits; }
     bool IsDriver() { return m_Driver; }
 
+    bool operator==(std::string& name) { return name == m_Name; }
+
 private:
     std::string m_Name;
     int m_Credits;

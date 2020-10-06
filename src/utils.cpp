@@ -1,9 +1,9 @@
 #include "utils.h"
 
 //reads from file
-std::vector<Person> readDatabaseIntoVec(std::string filepath)
+std::vector<Person*> readDatabaseIntoVec(std::string filepath)
 {
-    std::vector<Person> result = std::vector<Person>();
+    std::vector<Person*> result = std::vector<Person*>();
 
     std::ifstream dbFile;
 
@@ -24,14 +24,14 @@ std::vector<Person> readDatabaseIntoVec(std::string filepath)
         // Person is a driver
         if (space == -1)
         {
-            result.push_back(Person(line, -1));
+            result.push_back(new Person(line, -1));
         }
         // Person is not a driver
         else
         {
             std::string name = line.substr(0, space);
             int credits = std::stoi(line.substr(space));
-            result.push_back(Person(name, credits, false));
+            result.push_back(new Person(name, credits, false));
         }
     }
 
@@ -39,7 +39,7 @@ std::vector<Person> readDatabaseIntoVec(std::string filepath)
 }
 
 //writes to file
-void saveToDatabase(std::string filepath, std::vector<Person>& people)
+void saveToDatabase(std::string filepath, std::vector<Person*>& people)
 {
     std::ofstream dbFile;
 
@@ -51,18 +51,26 @@ void saveToDatabase(std::string filepath, std::vector<Person>& people)
         return;
     }
 
-    for (Person peep : people)
+    for (Person* peep : people)
     {
         std::string credits;
-        if (peep.IsDriver())
+        if (peep->IsDriver())
         {
             credits = " ";
         }
         else
         {
-            credits = std::to_string(peep.GetCredits());
+            credits = std::to_string(peep->GetCredits());
         }
         
-        dbFile << peep.GetName().c_str() << " " << credits.c_str() << std::endl;
+        if (peep->IsDriver())
+        {
+            dbFile << peep->GetName().c_str() << std::endl;
+
+        }
+        else
+        {
+            dbFile << peep->GetName().c_str() << " " << credits.c_str() << std::endl;
+        }
     }
 }

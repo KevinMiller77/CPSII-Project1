@@ -1,17 +1,47 @@
 #include "car.h"
+#include "utils.h"
 
 void Car::printSeatManifest()
 {
     printf("%s\n", CarToString(m_Color, m_Type).c_str());
     for (Seat* seat : m_Seats)
     {
-        printf("\t - %s%s\n", SeatTypeToString(seat->type).c_str(), seat->personInSeat.GetName().c_str());      //
+        printf("  - %s%s\n", SeatTypeToString(seat->type).c_str(), seat->personInSeat->GetName().c_str());
     }
+}
+
+void Car::printSeatManifestToFile(bool individualManifest)
+{
+    std::string fileName = individualManifest ? "data/" + CarToString(m_Color, m_Type) + ".txt" : "data/all_reservations.txt";
+    
+    std::ofstream outFile;
+    if (individualManifest)
+    {
+        outFile = std::ofstream(fileName.c_str());
+    }
+    else
+    {
+        outFile = std::ofstream(fileName.c_str(), std::ofstream::out | std::ofstream::app);
+    }
+
+    if (!outFile)
+    {
+        printf("There was a problem opening file for car manifest write!!!\n");
+        return;
+    }
+
+    outFile << CarToString(m_Color, m_Type).c_str() << std::endl;
+    for (Seat* seat : m_Seats)
+    {
+        outFile << "  - " << SeatTypeToString(seat->type).c_str() << seat->personInSeat->GetName().c_str() << std::endl;
+    }
+
+    outFile.close();
 }
 
 void Car::printCarReservationInfo()
 {
-    printf("%s\n", CarToString(*this).c_str());
+    printf("%s\n", CarToString(m_Color, CarType::NONE).c_str());
     //front row
     int i = 0;
     for (Seat* seat : m_Seats)
@@ -50,33 +80,33 @@ std::vector<Seat*> Car::getFreeSeats()
 Sedan::Sedan(CarColor color)
     : Car(CarType::SEDAN, color)
 {
-    m_Seats.push_back(new Seat(SeatType::DRIVER));              //determines each seat in the sedan, sets hierarchy (how they're dislayed in console)
-    m_Seats.push_back(new Seat(SeatType::FRONT));
-    m_Seats.push_back(new Seat(SeatType::SIDE));
-    m_Seats.push_back(new Seat(SeatType::MIDDLE));
-    m_Seats.push_back(new Seat(SeatType::SIDE));
+    m_Seats.push_back(new Seat(SeatType::DRIVER , this));              //determines each seat in the sedan, sets hierarchy (how they're dislayed in console)
+    m_Seats.push_back(new Seat(SeatType::FRONT  , this));
+    m_Seats.push_back(new Seat(SeatType::SIDE   , this));
+    m_Seats.push_back(new Seat(SeatType::MIDDLE , this));
+    m_Seats.push_back(new Seat(SeatType::SIDE   , this));
     
 }
 
 Compact::Compact(CarColor color)
     : Car(CarType::COMPACT, color)
 {
-    m_Seats.push_back(new Seat(SeatType::DRIVER));              //determines each seat in the compact, sets hierarchy
-    m_Seats.push_back(new Seat(SeatType::FRONT));
-    m_Seats.push_back(new Seat(SeatType::BACK));
-    m_Seats.push_back(new Seat(SeatType::BACK));   
+    m_Seats.push_back(new Seat(SeatType::DRIVER , this));              //determines each seat in the compact, sets hierarchy
+    m_Seats.push_back(new Seat(SeatType::FRONT  , this));
+    m_Seats.push_back(new Seat(SeatType::BACK   , this));
+    m_Seats.push_back(new Seat(SeatType::BACK   , this));   
 }
 
 Pickup::Pickup(CarColor color)
     : Car(CarType::PICKUP, color)
 {
-    m_Seats.push_back(new Seat(SeatType::DRIVER));              //determines each seat in the truck, sets hierarchy
-    m_Seats.push_back(new Seat(SeatType::FRONT));
+    m_Seats.push_back(new Seat(SeatType::DRIVER, this));              //determines each seat in the truck, sets hierarchy
+    m_Seats.push_back(new Seat(SeatType::FRONT , this));
 }
 
 std::string CarToString(CarColor color, CarType type) 
 {
-    std::string result;
+    std::string result = std::string();
 
     switch(color)                                               //allows for a switch of car color
     {
@@ -94,7 +124,7 @@ std::string CarToString(CarColor color, CarType type)
 
     switch(type)                                               //allows for a switch of car type (similar to color)
     {
-        case(CarType::NONE): result += " No Car"; break;
+        case(CarType::NONE): result += ""; break;
         case(CarType::PICKUP): result += " Pickup"; break;
         case(CarType::COMPACT): result += " Compact"; break;
         case(CarType::SEDAN): result += " Sedan"; break;
@@ -116,12 +146,12 @@ std::string SeatToString(SeatType seat)
 {
     switch(seat)                                               //for visuals of car to show what seats are available/taken/driver and how much if they're available
     {
-        case(SeatType::TAKEN):   return "(T) ";
-        case(SeatType::DRIVER): return "(D) ";
-        case(SeatType::FRONT):  return "(5) ";
-        case(SeatType::BACK):   return "(3) ";
-        case(SeatType::SIDE):   return "(2) ";
-        case(SeatType::MIDDLE): return "(1) ";
+        case(SeatType::TAKEN):   return " (T) ";
+        case(SeatType::DRIVER): return " (D) ";
+        case(SeatType::FRONT):  return " (5) ";
+        case(SeatType::BACK):   return " (3) ";
+        case(SeatType::SIDE):   return " (2) ";
+        case(SeatType::MIDDLE): return " (1) ";
 
         default: 
         {
