@@ -126,7 +126,8 @@ bool Application::mainLoop()
     printf("(L)     Display vehicles\n");
     printf("(P)     Print vehicle assignments to a file named after the car\n");
     printf("(A)     Print All reservations\n");
-    printf("(E)     Exit NOTE: If you do not exit through this method, the database will not update!!\n\n > ");
+    printf("(S)     Save all changes to the database.\n");
+    printf("(E)     Exit NOTE: This application does NOT save on exit!!\n\n > ");
 
     //Grab the one letter command
     char command;
