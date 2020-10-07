@@ -1,10 +1,14 @@
 #pragma once
+/*
+Filename: car.h
+-------------------------------------------------------
+Developers: Taylor Hess & Kevin Miller
+Class Name: Computational Problem Solving II (CPET-321)
+Academic Term: Fall 2020-21
+*/
 
-#include <string>
-#include <vector>
-
+#include "pch.h"
 #include "person.h"
-#include "utils.h"
 
 //Colors of the car
 enum class CarColor
@@ -26,7 +30,7 @@ enum class SeatType
 
 class Car;
 
-//Actual seat, can be taken or not
+//Actual seat, properties describe themself
 struct Seat
 {
     Seat(SeatType Type, Car* Parent) 
@@ -39,21 +43,31 @@ struct Seat
     bool taken;
 };
 
-//overall class to determine color and type of car
+// Vehicle base class
 class Car
 {
 public:
     Car(CarType type, CarColor color) : m_Type(type), m_Color(color) {}
 
+    // Print the entire manifest to temrinal
     void printSeatManifest();
+
+    // Print the entire manifest to a file
+    // If individualManifest, it prints to its' own file
+    // otherwise, it appends the all_reservations file
     void printSeatManifestToFile(bool individualManifest = true);
+
+    // Print out names and seats to the console
     void printCarReservationInfo();
 
+    // Find what seats are free (only passenger)
+    // and return a vector of them
+    std::vector<Seat*> getFreeSeats();
+
+    // Getters
     CarColor getColor() { return m_Color; }
     CarType getType() { return m_Type; }
     std::vector<Seat*> getSeats() { return m_Seats; }
-    std::vector<Seat*> getFreeSeats();
-    
 
 protected:
     CarType m_Type;
@@ -61,7 +75,7 @@ protected:
     std::vector<Seat*> m_Seats;
 };
 
-//chooses which car
+// All of the higher level classes of vehicle
 class Sedan : public Car
 {
 public:

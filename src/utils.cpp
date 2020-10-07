@@ -1,4 +1,12 @@
-#include "utils.h"
+/*
+Filename: utils.cpp
+-------------------------------------------------------
+Developers: Taylor Hess & Kevin Miller
+Class Name: Computational Problem Solving II (CPET-321)
+Academic Term: Fall 2020-21
+*/
+
+#include "person.h"
 
 //reads from file
 std::vector<Person*> readDatabaseIntoVec(std::string filepath)

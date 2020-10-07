@@ -20,7 +20,10 @@ project "Carpool"
         staticruntime "on"
 
         targetname("Carpool")
-	    objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+        objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+        
+        pchheader("src/pch.h")
+        pchsource("src/pch.cpp")
 
         files
         {

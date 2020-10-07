@@ -1,7 +1,12 @@
+/*
+Filename: fleet.cpp
+-------------------------------------------------------
+Developers: Taylor Hess & Kevin Miller
+Class Name: Computational Problem Solving II (CPET-321)
+Academic Term: Fall 2020-21
+*/
+
 #include "fleet.h"
-#include <algorithm>
-#include <initializer_list>
-#include <string>
 
 Fleet::Fleet()                                               
 {

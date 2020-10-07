@@ -5,15 +5,19 @@ Developers: Taylor Hess & Kevin Miller
 Class Name: Computational Problem Solving II (CPET-321)
 Academic Term: Fall 2020-21
 */
-#include "ui.h"
+#include "pch.h"
+#include "application.h"
 
 
 //Test main to make sure the build system works
 int main(int argv, char** argc) 
 {
-    UI mainApp;
+    //Construct a 
+    Application app;
 
-    mainApp.run();
+    //Run the app
+    app.run();
 
+    //Exit
     return 0;
 }
