@@ -22,9 +22,6 @@ project "Carpool"
         targetname("Carpool")
         objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
         
-        pchheader "pch.h"
-        pchsource "src/pch.cpp"
-
         files
         {
             "src/**.h",
@@ -39,3 +36,12 @@ project "Carpool"
         targetdir("./")
         debugdir("./")
 
+        filter "system:windows"
+            pchheader "pch.h"
+            pchsource "src/pch.cpp"
+
+        filter "system:linux"
+            pchheader "src/pch.h"
+
+        filter "system:macos"
+            pchheader "src/pch.h"
