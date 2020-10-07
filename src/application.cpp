@@ -6,6 +6,7 @@ Class Name: Computational Problem Solving II (CPET-321)
 Academic Term: Fall 2020-21
 */
 
+#include "pch.h"
 #include "application.h"
 
 
@@ -322,7 +323,6 @@ bool Application::Create()
     
     while (person == nullptr)
     {
-        CLEAR_CIN();
         if (personName == "exit")
         {
             return false;

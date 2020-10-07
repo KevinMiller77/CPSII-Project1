@@ -7,7 +7,6 @@ Class Name: Computational Problem Solving II (CPET-321)
 Academic Term: Fall 2020-21
 */
 
-#include "pch.h"
 #include "car.h"
 
 // A collection of cars that drive together

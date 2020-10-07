@@ -22,8 +22,8 @@ project "Carpool"
         targetname("Carpool")
         objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
         
-        pchheader("src/pch.h")
-        pchsource("src/pch.cpp")
+        pchheader "pch.h"
+        pchsource "src/pch.cpp"
 
         files
         {
